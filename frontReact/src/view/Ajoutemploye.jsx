@@ -80,7 +80,7 @@ export default function Example() {
                     },
                 }
             );
-
+            openModal2();
             console.log(response);
         } catch (err) {
             if (
@@ -547,7 +547,6 @@ export default function Example() {
                                                 onClick={(e) => {
                                                     onSubmitChange(e);
                                                     closeModal();
-                                                    openModal2();
                                                 }}
                                             >
                                                 Ajouter

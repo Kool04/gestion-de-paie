@@ -33,7 +33,7 @@ export default function Info() {
     const [userField, setUserField] = useState({
         num_emp: num_emp,
         type: "",
-        montant: "",
+        salaire_fin: user.salaire_fin || "",
     });
     const [validationErrors, setValidationErrors] = useState({});
 

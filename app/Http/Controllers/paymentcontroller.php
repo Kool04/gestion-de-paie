@@ -139,6 +139,9 @@ class paymentcontroller extends Controller
 
             DB::table('employe')->where('num_emp', $num_emp)->delete();
 
+            DB::table('action')->where('num_emp', $num_emp)->delete();
+            DB::table('payment')->where('num_emp', $num_emp)->delete();
+
             return response()->json([
                 'message' => "Employer supprimé avec succès."
             ], 200);

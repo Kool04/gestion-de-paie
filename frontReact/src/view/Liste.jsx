@@ -387,7 +387,7 @@ export default function Liste() {
                                                                 <Dialog.Panel className="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                                                                     <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-red-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
                                                                         <CheckIcon
-                                                                            className="w-6 h-6 text-red-600"
+                                                                            className="w-6 h-6 text-green-600"
                                                                             aria-hidden="true"
                                                                         />
                                                                     </div>

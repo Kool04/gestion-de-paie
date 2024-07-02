@@ -41,3 +41,4 @@ Route::delete('/supprimerAction/{ref}', [Actioncontroller::class, 'supprimerActi
 Route::get('listePayment', [recucontroller::class, 'indexPayment']);
 Route::post('/ajouterPayment', [recucontroller::class, 'storePayment']);
 Route::get('listePayment/{num_payment}', [recucontroller::class, 'showPayment']);
+Route::delete('/supprimerPayment/{num_payment}', [recucontroller::class, 'supprimerPayment']);

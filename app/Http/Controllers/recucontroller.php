@@ -21,6 +21,8 @@ class recucontroller extends Controller
     {
         try {
             $date = now();
+
+            // Insérer le nouveau paiement
             DB::table('payment')->insert([
                 'num_payment' => $request->num_payment,
                 'num_emp' => $request->num_emp,
@@ -29,12 +31,15 @@ class recucontroller extends Controller
                 'date' => $date,
             ]);
 
+            // Supprimer les actions en fonction du num_emp
+            // DB::table('action')->where('num_emp', $request->num_emp)->delete();
+
             return response()->json([
-                'message' => "Payment effectue ajouté avec succès."
+                'message' => "Paiement ajouté avec succès et actions supprimées."
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => "Erreur lors du payment : " . $e->getMessage()
+                'message' => "Erreur lors du paiement : " . $e->getMessage()
             ], 500);
         }
     }
@@ -52,7 +57,7 @@ class recucontroller extends Controller
                 ], 404);
             }
 
-            DB::table('employe')->where('num_payment', $num_payment)->delete();
+            DB::table('payment')->where('num_payment', $num_payment)->delete();
 
             return response()->json([
                 'message' => "Payment annuler."

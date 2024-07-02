@@ -1,11 +1,9 @@
-import {
-    ArrowLeftIcon,
-    BriefcaseIcon,
-    MapPinIcon,
-} from "@heroicons/react/20/solid";
+import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
+import html2pdf from "html2pdf.js";
+import QRCode from "qrcode.react";
 
 export default function Pdf() {
     const { num_emp, num_payment } = useParams();
@@ -13,7 +11,12 @@ export default function Pdf() {
     const [action, setAction] = useState([]);
     const [payment, setPayment] = useState([]);
 
+    const qrData = JSON.stringify({
+        user: user,
+    });
+
     useEffect(() => {
+        document.title = "Fiche de paie- Gestion de payement";
         fetchUser();
     }, [num_emp, num_payment]);
 
@@ -22,7 +25,6 @@ export default function Pdf() {
             const userResult = await axios.get(
                 "http://127.0.0.1:8000/api/liste/" + num_emp
             );
-            console.log(userResult.data.liste);
             console.log(
                 "Contenu de photo_path :",
                 userResult.data.liste.photo_path
@@ -32,27 +34,34 @@ export default function Pdf() {
             const actionResult = await axios.get(
                 "http://127.0.0.1:8000/api/listeAction/" + num_emp
             );
-            console.log(actionResult.data.actions);
             setAction(actionResult.data.actions);
 
             const paymentResult = await axios.get(
                 "http://127.0.0.1:8000/api/listePayment/" + num_payment
             );
-            console.log(paymentResult.data.liste);
             setPayment(paymentResult.data.liste);
         } catch (err) {
             console.log("erreur", err);
         }
     };
 
+    const handlePrint = () => {
+        const element = document.getElementById("pdf-content");
+        const opt = {
+            margin: 5, // Spécifiez la taille des marges en millimètres
+            filename: "fiche de paie.pdf",
+            image: { type: "jpeg", quality: 0.99 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        };
+
+        html2pdf().from(element).set(opt).save();
+    };
     return (
         <>
             <div className="mt-5">
                 <button type="button mt-5">
-                    <NavLink
-                        to="/defaultLayout/payment"
-                        // className="flex items-center"
-                    >
+                    <NavLink to="/defaultLayout/payment">
                         <ArrowLeftIcon className="w-8 h-8 ml-8 " />
                     </NavLink>
                 </button>
@@ -65,37 +74,11 @@ export default function Pdf() {
                     <h3 className="mt-2 text-center">
                         <u>Fiche de paye:</u>
                     </h3>
-                    <div className=" lg:flex lg:items-center lg:justify-between">
+                    <div className="flex items-center justify-between">
+                        <div className="qr-code-container">
+                            <QRCode value={qrData} size={128} />
+                        </div>
                         <div className="flex items-center">
-                            <img
-                                className="inline-block w-20 h-20 rounded-full ring-2 ring-white"
-                                src={`http://localhost:8000/storage/${user.photo_path}`}
-                                alt=""
-                            />
-
-                            <div className="ml-3 ">
-                                <div className="flex-1 min-w-0 ">
-                                    <p className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight ">
-                                        {user && user.nom + " " + user.prenom}
-                                    </p>
-                                </div>
-                                <div className="flex items-center mt-1">
-                                    <div className="flex items-center mr-6 text-sm text-gray-500">
-                                        <BriefcaseIcon
-                                            className="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400"
-                                            aria-hidden="true"
-                                        />
-                                        {user && user.poste}
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-500">
-                                        <MapPinIcon
-                                            className="mr-1.5 h-5 w-5 flex-shrink-0 text-red-600"
-                                            aria-hidden="true"
-                                        />
-                                        {user && user.lieu}
-                                    </div>
-                                </div>
-                            </div>
                             <div className="flex ml-15 ">
                                 <img
                                     className="w-40 h-40 "
@@ -108,11 +91,6 @@ export default function Pdf() {
 
                     <div className="max-w-5xl px-4 py-2 mx-auto lg:flex lg:items-center lg:justify-between lg:px-8">
                         <div className="w-full">
-                            <div className="flex items-center justify-between">
-                                <h3 className="font-semibold leading-7 text-center text-gray-900">
-                                    <u>Employe Information:</u>
-                                </h3>
-                            </div>
                             <div className="mt-2 border-t border-gray-100">
                                 <dl className="divide-y divide-gray-100">
                                     <div className="flex items-center px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -121,47 +99,6 @@ export default function Pdf() {
                                         </dt>
                                         <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                                             {user && user.num_emp}
-                                        </dd>
-                                    </div>
-                                    <div className="flex items-center px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                                            CIN
-                                        </dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                            {user && user.cin}
-                                        </dd>
-                                    </div>
-                                    <div className="flex items-center px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                                            numero Carte Bancaire
-                                        </dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                            {user && user.num_carte}{" "}
-                                        </dd>
-                                    </div>
-
-                                    <div className="flex items-center px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                                            numero telephone
-                                        </dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                            {user && user.num_tel}
-                                        </dd>
-                                    </div>
-                                    <div className="flex items-center px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                                            Adresse actuel
-                                        </dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                            {user && user.adresse}
-                                        </dd>
-                                    </div>
-                                    <div className="flex items-center px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                                            Adresse mail
-                                        </dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                            {user && user.email}
                                         </dd>
                                     </div>
                                 </dl>
@@ -202,10 +139,18 @@ export default function Pdf() {
                                             {payment && payment.date}
                                         </dd>
                                     </div>
+                                    <div className="flex items-center px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                        <dt className="flex items-center text-sm font-medium leading-6 text-gray-900">
+                                            salaire de base
+                                        </dt>
+                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            {user && user.salaire_base}
+                                        </dd>
+                                    </div>
 
                                     <div className="flex items-center px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                                         <dt className="flex items-center text-sm font-medium leading-6 text-gray-900">
-                                            Montant
+                                            Salaire final
                                         </dt>
                                         <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                                             <strong>
@@ -257,6 +202,7 @@ export default function Pdf() {
                 <div className="flex items-center justify-end mt-6 gap-x-6">
                     <button
                         type="button"
+                        onClick={handlePrint}
                         className="px-3 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                         Imprimer

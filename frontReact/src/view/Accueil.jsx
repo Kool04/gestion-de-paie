@@ -1,10 +1,57 @@
-import { CurrencyDollarIcon, UsersIcon } from "@heroicons/react/20/solid";
-import { useEffect } from "react";
+import {
+    ArrowTrendingUpIcon,
+    CheckIcon,
+    CurrencyDollarIcon,
+    UsersIcon,
+} from "@heroicons/react/20/solid";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useStateContext } from "../context/ContextProvider";
+import { Navigate } from "react-router-dom";
 
 export default function Accueil() {
+    const { currentUser, userToken } = useStateContext();
+    const [totalEmployers, setTotalEmployers] = useState(0);
+    const [payment, setPayment] = useState(0);
+    const [greeting, setGreeting] = useState("");
+
+    const [action, setAction] = useState(0);
+
     useEffect(() => {
-        document.title = "Accueil- Gestion de payement"; // Mettez ici le titre que vous souhaitez
+        document.title = "Accueil- Gestion de payement";
+        fetchData();
+        setGreeting(getGreeting());
     }, []);
+    if (!userToken) {
+        return <Navigate to="/loginclient" />;
+    }
+
+    const fetchData = async () => {
+        try {
+            const result = await axios.get("http://127.0.0.1:8000/api/liste");
+
+            if (result.data.results) {
+                setTotalEmployers(result.data.results.length);
+            }
+
+            const actionResult = await axios.get(
+                "http://127.0.0.1:8000/api/listeAction/"
+            );
+            setAction(actionResult.data.results.length);
+
+            const paymentResult = await axios.get(
+                "http://127.0.0.1:8000/api/listePayment/"
+            );
+            setPayment(paymentResult.data.results.length);
+        } catch (err) {
+            console.log("erreur", err);
+        }
+    };
+
+    const getGreeting = () => {
+        const currentHour = new Date().getHours();
+        return currentHour >= 0 && currentHour < 12 ? "Bonjour" : "Bonsoir";
+    };
 
     return (
         <div className="overflow-hidden bg-white py-15 sm:py-20">
@@ -13,19 +60,19 @@ export default function Accueil() {
                     <div className="lg:pr-8 lg:pt-4">
                         <div>
                             <h2 className="text-base font-semibold leading-7 text-indigo-600">
-                                Site de gestion de Paie du societe
+                                Site de gestion de Paie du société
                             </h2>
                             <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                                Bonjour
+                                {greeting} {currentUser.name}
                             </p>
                             <p className="mt-6 text-lg leading-8 text-gray-600">
-                                Ce site web regroupe le payment qui se deroule
-                                dans notre societe,Veuillez bien verifiez et
+                                Ce site web regroupe le payment qui se déroule
+                                dans notre société, Veuillez bien vérifier et
                                 bien examiner les formulaires que vous
-                                remplissez pour ne pas se tromper L&apos;argent
-                                qui sont ici sont tous en Ariary. Si vous avez
-                                un probleme veuillez contacter le technicien le
-                                plus rapide
+                                remplissez pour ne pas vous tromper.
+                                L&apos;argent qui est ici est tout en Ariary. Si
+                                vous avez un problème veuillez contacter le
+                                technicien le plus rapidement.
                             </p>
 
                             <div className="container px-4 py-4 mx-auto bg-white border-gray-300 shadow-xl w-22 rounded-2xl">
@@ -34,12 +81,13 @@ export default function Accueil() {
                                         <CurrencyDollarIcon className="w-10 h-10" />
                                     </div>
                                     <h2 className="ml-2 text-lg font-bold">
-                                        Total Argent:
+                                        Total Argent du mois:
                                     </h2>
                                 </div>
 
                                 <div className="mx-20 mt-2 text-xl font-bold text-green-500">
-                                    $53k
+                                    {/* Afficher le nombre total d'employés */}
+                                    50.000.000 Ar
                                 </div>
                             </div>
 
@@ -54,29 +102,39 @@ export default function Accueil() {
                                 </div>
 
                                 <div className="mx-20 mt-2 text-xl font-bold text-green-500">
-                                    $53k
+                                    {/* Afficher le nombre total d'employés */}
+                                    {totalEmployers}
                                 </div>
                             </div>
 
-                            {/*<dl className="max-w-xl mt-10 space-y-8 text-base leading-7 text-gray-600 lg:max-w-none">
-                                {features.map((feature) => (
-                                    <div
-                                        key={feature.name}
-                                        className="relative pl-9"
-                                    >
-                                        <dt className="inline font-semibold text-gray-900">
-                                            <feature.icon
-                                                className="absolute w-5 h-5 text-indigo-600 left-1 top-1"
-                                                aria-hidden="true"
-                                            />
-                                            {feature.name}
-                                        </dt>{" "}
-                                        <dd className="inline">
-                                            {feature.description}
-                                        </dd>
+                            <div className="container px-4 py-4 mx-auto mt-6 bg-white border-gray-300 shadow-xl w-22 rounded-2xl">
+                                <div className="flex items-center">
+                                    <div>
+                                        <ArrowTrendingUpIcon className="w-10 h-10" />
                                     </div>
-                                ))}
-                            </dl>*/}
+                                    <h2 className="ml-2 text-lg font-bold">
+                                        Nombre d&apos;Action de ce mois:
+                                    </h2>
+                                </div>
+
+                                <div className="mx-20 mt-2 text-xl font-bold text-green-500">
+                                    {action}
+                                </div>
+                            </div>
+                            <div className="container px-4 py-4 mx-auto mt-6 bg-white border-gray-300 shadow-xl w-22 rounded-2xl">
+                                <div className="flex items-center">
+                                    <div>
+                                        <CheckIcon className="w-10 h-10" />
+                                    </div>
+                                    <h2 className="ml-2 text-lg font-bold">
+                                        Nombre de paiement:
+                                    </h2>
+                                </div>
+
+                                <div className="mx-20 mt-2 text-xl font-bold text-green-500">
+                                    {payment}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <img

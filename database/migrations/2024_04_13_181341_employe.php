@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('num_emp')->primary();
             $table->string('nom', 30)->nullable();
             $table->string('prenom', 20)->nullable();
-            $table->string('cin', 20)->nullable();
+            $table->string('cin', 12)->unique()->nullable();
             $table->string('poste', 50)->nullable();
             $table->string('lieu', 50)->nullable();
             $table->string('num_carte', 20)->nullable();
